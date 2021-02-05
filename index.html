@@ -37,19 +37,77 @@
     <div id="bottom-left" class="bin"><p class="display">Bottom Left</p></div>
     <div id="bottom-right" class="bin"><p class="display">Bottom Right</p></div>
     <script>
-        const allVariants = [
-            ['1', '4', '2', '3'],
-            ['1', '3', '2', '4'],
-            ['2', '3', '1', '4'],
+        function* permute(permutation) 
+        {
+            var length = permutation.length,
+            c = Array(length).fill(0),
+            i = 1, k, p;
+            yield permutation.slice();
+            while (i < length) 
+            {
+                if (c[i] < i) 
+                {
+                    k = i % 2 && c[i];
+                    p = permutation[i];
+                    permutation[i] = permutation[k];
+                    permutation[k] = p;
+                    ++c[i];
+                    i = 1;
+                    yield permutation.slice();
+                } 
+                else 
+                {
+                    c[i] = 0;
+                    ++i;
+                }
+            }
+        }
+
+        const allVariants = [];
+
+        const oneShots = [
             ['Left Taniks', 'Right Taniks', 'Left Door', 'Right Door'],
             ['Port Bow', 'Starboard Bow', 'Port Stern', 'Starboard Stern'],
             ['Chalice', 'Sun', 'Axes', 'Dogs'],
             ['Right Spear', 'Down Snake', 'Right Fire', 'Seaweed Fish'],
             ['Door', 'Reception', 'Doctor', 'Loss'],
             ['Left Far', 'Right Far', 'Left Close', 'Right Close'],
-            ['Right Close', 'Left Close', 'Right Far', 'Right Far'],
-            ['Here', 'There', 'That One', 'Not That One']
+            ['Right Close', 'Left Close', 'Right Far', 'Left Far'],
+            ['Bottom Right', 'Bottom Left', 'Top Right', 'Top Left'],
+            ['Lesbian', 'Gay', 'Bisexual', 'Transgender'],
+            ['Auth Left', 'Auth Right', 'Lib Left', 'Lib Right'],
+            ['Lawful Good', 'Chaotic Good', 'Lawful Evil', 'Chaotic Evil'],
+            ['Whether we', 'Wanted it', 'or not,', 'We have stepped into a war with the Cabal On Mars'],
+            ['Abandon hope', 'all ye', 'who enter', 'here'],
+            ['Live', 'Laugh', 'Love', 'Uh, that one'],
+            ['Are We', 'Human', 'Or Are We', 'Dancer?'],
+            ['Bottom Right', 'Bottom Left', 'Top Right', 'Top Left'],
+            ['Hey,', 'You.', 'You\'re finally', 'awake.'],
+            ['LEE', 'ROY', 'JEN', 'KINS']
         ]
+        const permuteThese = [
+            ['1', '2', '3', '4'],
+            ['Here', 'There', 'That One', 'Not That One'],
+            ['Pestilence', 'War', 'Famine', 'Death'],
+            ['Aah!', 'Eee', 'Oh!', 'Uuu'],
+            ['Tree Ant', 'Rock Pen', 'Stair Pen', 'Door Ant'],
+            ['uwu', 'omo', 'umu', 'OwO'],
+            ['Earth', 'Fire', 'Air', 'Water'],
+            ['Cloud Snake', 'Boring Bird', '69 Fish', 'Right Spear'],
+            ['North', 'South', 'East', 'West'],
+            ['Titan', 'Io', 'Mercury', 'Mars'],
+            ['Solar', 'Arc', 'Void', 'Stasis'],
+            ['Operator', 'Scanner', 'Suppressor', 'Add Clear']
+        ]
+
+        oneShots.forEach((item) => allVariants.push(item))
+
+        permuteThese.forEach((item) => {
+                const permutations = permute(item);
+                for(var perm of permutations)
+                        allVariants.push(perm);
+            }
+        )
 
         const binMap = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
         const queryParam = 'variant'
@@ -84,8 +142,9 @@
                 let variants = []
                 let rolls = 1
                 let fails = 0
-                let max = allVariants.length
+                let max = oneShots.length + permuteThese.length
                 let result
+                let which
                 while (variants.length < 3 && rolls > 0 && fails < 50) {
                     rolls -= 1
                     result = Math.floor(Math.random() * (max + 1))
@@ -95,7 +154,13 @@
                         rolls++
                         fails++
                     } else {
-                        variants.push(result)
+                        if(result >= oneShots.length)
+                        {
+                            which = Math.floor(Math.random() * 24);
+                            variants.push((result - oneShots.length)*24 + which + oneShots.length)
+                        }
+                        else
+                            variants.push(result)
                     }
                 }
                 variants.forEach((value) => {urlParams.append(queryParam, value)})
